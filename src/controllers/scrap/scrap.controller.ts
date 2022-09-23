@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import fetch from 'node-fetch';
 import xpathHtml from 'xpath-html';
-import jsdom from 'jsdom';
+import { ScrapService } from 'src/services/scrap/scrap.service';
 
 export interface scrapPayloadFormat {
   url: string;
@@ -17,51 +17,33 @@ export interface scrapPayloadFormat {
 
 @Controller('scrap')
 export class ScrapController {
+  constructor(private scrapService: ScrapService) {}
+
   @Get()
   getScrap(): string {
     return 'Scrap';
   }
 
   @Post('/id')
-  async getScrapById(@Body() params: scrapPayloadFormat) {
+  getScrapById(@Body() params: scrapPayloadFormat) {
     if (params.url && params.customPath) {
-      return fetch(params.url)
-        .then((response) => response.text())
-        .then((data) => {
-          const domParser = new jsdom.JSDOM(data);
-          return domParser.window.document.querySelector(
-            `#${params.customPath}`,
-          ).textContent;
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+      return this.scrapService.scrapById(params);
     } else {
       console.log('One or the two elements are undefined');
     }
   }
 
   @Post('/class')
-  async getScrapByClass(@Body() params: scrapPayloadFormat) {
+  getScrapByClass(@Body() params: scrapPayloadFormat) {
     if (params.url && params.customPath) {
-      return fetch(params.url)
-        .then((response) => response.text())
-        .then((data) => {
-          const domParser = new jsdom.JSDOM(data);
-          return domParser.window.document.querySelector(
-            `.${params.customPath}`,
-          ).textContent;
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+      return this.scrapService.scrapByClass(params);
     } else {
       console.log('One or the two elements are undefined');
     }
   }
 
   @Post('/xpath')
-  async getScrapAnySite(@Body() params: scrapPayloadFormat) {
+  getScrapAnySite(@Body() params: scrapPayloadFormat) {
     try {
       if (params.url && params.customPath) {
         return fetch(params.url)

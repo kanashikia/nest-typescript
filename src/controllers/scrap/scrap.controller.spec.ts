@@ -15,4 +15,6 @@ describe('ScrapController', () => {
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
+
+  it('should getScrapById send the right response', {});
 });
